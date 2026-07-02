@@ -1,0 +1,131 @@
+<!-- myapp/templates/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load static %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'styles.css' %}?v=20260701a">
+</head>
+<body>
+    <div class="page-bg"></div>
+    <header class="site-header">
+        <div class="brand" id="brand-title">{{ walkthrough.brand }}</div>
+        <nav class="nav-links">
+            <a href="#updates">Overview</a>
+            <a href="#studio">Studio</a>
+            <a href="#footer">Contact</a>
+        </nav>
+    </header>
+
+    <main class="layout">
+        <section class="hero" id="updates">
+            <p class="eyebrow" id="lesson-eyebrow">{{ walkthrough.eyebrow }}</p>
+            <h1 id="hero-step-title">Step 1: {{ walkthrough.steps.0.label }}</h1>
+            <p id="hero-step-summary" class="intro">{{ walkthrough.steps.0.hero_summary }}</p>
+            <p id="hero-step-detail" class="hero-detail">{{ walkthrough.steps.0.hero_detail }}</p>
+
+            <section class="diagram-card" aria-labelledby="diagram-title">
+                <div class="diagram-card-header">
+                    <div>
+                        <p class="panel-kicker">Flow Diagram</p>
+                        <h2 id="diagram-title">{{ walkthrough.diagram_title }}</h2>
+                    </div>
+                    <span class="diagram-status" id="diagram-status">Current step: {{ walkthrough.steps.0.label }}</span>
+                </div>
+                <div class="diagram-surface">
+                    <div class="flow-diagram" id="rag-diagram" aria-live="polite" aria-label="LLM and RAG process flow">
+                        {% for step in walkthrough.steps %}
+                        <div class="flow-node{% if forloop.first %} is-active{% endif %}" data-diagram-step="{{ forloop.counter0 }}" role="button" tabindex="0" aria-label="Go to step {{ forloop.counter }}: {{ step.label }}">
+                            <span class="flow-node-number">{{ forloop.counter }}</span>
+                            <strong>{{ step.label }}</strong>
+                        </div>
+                        {% if not forloop.last %}
+                        <span class="flow-arrow" data-arrow-step="{{ forloop.counter0 }}" aria-hidden="true"></span>
+                        {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+            </section>
+
+            <div class="sequence-strip" aria-label="RAG sequence overview">
+                {% for step in walkthrough.steps %}
+                <div class="sequence-step{% if forloop.first %} is-active{% endif %}" data-step="{{ forloop.counter0 }}" role="button" tabindex="0" aria-label="Go to step {{ forloop.counter }}: {{ step.label }}">
+                    <span class="sequence-number">{{ forloop.counter }}</span>
+                    <div>
+                        <strong>{{ step.label }}</strong>
+                        <p>{{ step.card_text }}</p>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+
+        <section class="panel" id="studio">
+            <div class="panel-header">
+                <div>
+                    <p class="panel-kicker">Authoring Surface</p>
+                    <h2>{{ walkthrough.builder_title }}</h2>
+                </div>
+                <span class="panel-badge" id="mode-badge">{{ walkthrough.mode_label }}</span>
+            </div>
+
+            <div class="builder-shell" aria-label="Reusable lesson builder">
+                <div class="builder-note">
+                    <p id="builder-note-copy">{{ walkthrough.builder_note }}</p>
+                </div>
+
+                <form id="builder-form" class="builder-form">
+                    <div class="builder-grid">
+                        <label class="builder-label" for="brand-input">Subject Title</label>
+                        <input id="brand-input" name="brand" type="text" value="{{ walkthrough.brand }}">
+
+                        <label class="builder-label" for="eyebrow-input">Eyebrow</label>
+                        <input id="eyebrow-input" name="eyebrow" type="text" value="{{ walkthrough.eyebrow }}">
+
+                        <label class="builder-label" for="step-title-input">Current Step Title</label>
+                        <input id="step-title-input" name="step-title" type="text" value="{{ walkthrough.steps.0.label }}">
+
+                        <label class="builder-label" for="step-card-text-input">Sequence Card Copy</label>
+                        <textarea id="step-card-text-input" name="step-card-text" rows="3">{{ walkthrough.steps.0.card_text }}</textarea>
+
+                        <label class="builder-label" for="step-summary-input">Top Summary</label>
+                        <textarea id="step-summary-input" name="step-summary" rows="4">{{ walkthrough.steps.0.hero_summary }}</textarea>
+
+                        <label class="builder-label" for="step-detail-input">Detailed Explanation</label>
+                        <textarea id="step-detail-input" name="step-detail" rows="4">{{ walkthrough.steps.0.hero_detail }}</textarea>
+
+                        <label class="builder-label" for="step-explainer-input">Step Explainer Text</label>
+                        <textarea id="step-explainer-input" name="step-explainer" rows="4">{{ walkthrough.steps.0.explainer }}</textarea>
+                    </div>
+                    <div class="prompt-actions">
+                        <button id="advance-step-btn" class="btn btn-secondary" type="button">Next Step</button>
+                        <a class="btn btn-secondary" href="/">Load Example</a>
+                        <a class="btn btn-primary" href="?blank=1">Start Blank</a>
+                    </div>
+                </form>
+
+                <div class="step-explainer" id="step-explainer">
+                    <h3>What this step does</h3>
+                    <p>{{ walkthrough.steps.0.explainer }}</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer id="footer" class="site-footer">
+        <p>Built with Django and modern CSS.</p>
+        <div class="footer-links">
+            <a href="#">Privacy</a>
+            <a href="#">Terms</a>
+            <a href="#">Status</a>
+        </div>
+    </footer>
+    {{ walkthrough_config|json_script:"walkthrough-config" }}
+    <script src="{% static 'script.js' %}?v=20260701a"></script>
+</body>
+</html>
