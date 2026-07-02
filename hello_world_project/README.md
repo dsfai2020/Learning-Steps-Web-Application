@@ -1,35 +1,57 @@
-Creating a Basic Django Project
+# Lesson Platform (Django)
 
-Install Django using pip: pip install django
+This project is configured to run locally and deploy on Render.
 
-Create a new directory for your project and navigate into it: mkdir hello_world_project && cd hello_world_project
+## Local run
 
-Run django-admin startproject to create a new Django project: python -m django admin startproject hello_world_project
+1. Create and activate a virtual environment.
+2. Install dependencies:
 
-Create a new app within the project: python manage.py startapp hello_world_app
+```bash
+pip install -r requirements.txt
+```
 
-Open settings.py and add 'hello_world_app' to the INSTALLED_APPS list.
+3. Run migrations:
 
-INSTALLED_APPS = [
-    # ...
-    'hello_world_app',
-]
-Create a new view function in views.py: from django.http import HttpResponse; def hello_world(request): return HttpResponse("Hello, World!")
+```bash
+python manage.py migrate
+```
 
-Create a new URL pattern in urls.py: from django.urls import path; from . import views; urlpatterns = [path('', views.hello_world),]
+4. Start server:
 
-Create a new HTML template: h1>Hello, World!</h1>
+```bash
+python manage.py runserver
+```
 
-Open urls.py and add the following code to include the app's URLs:
+## Render deployment
 
-from django.contrib import admin
-from django.urls import include, path
+This repo includes `render.yaml` at the repository root and deployment-ready Django settings.
 
-urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('', include('hello_world_app.urls')),
-]
-Run python manage.py runserver to start the Django development server.
-That's it! You should now see a simple "Hello, World!" page in your web browser when you navigate to http://localhost:8000/.
+### Option A: Blueprint deploy (recommended)
 
-Note: Make sure to save each file as its corresponding extension (.py, .html, etc.) and make any necessary changes before proceeding.
+1. Push the repo to GitHub.
+2. In Render, create a new Blueprint and select this repo.
+3. Render will read `render.yaml` and create the web service using:
+   - Build command: `pip install -r requirements.txt && python manage.py collectstatic --no-input`
+   - Start command: `python manage.py migrate && gunicorn hello_world_project.wsgi:application`
+
+### Option B: Manual Web Service setup
+
+Use these values in Render:
+
+- Root Directory: `hello_world_project`
+- Build Command: `pip install -r requirements.txt && python manage.py collectstatic --no-input`
+- Start Command: `python manage.py migrate && gunicorn hello_world_project.wsgi:application`
+
+Set environment variables:
+
+- `SECRET_KEY` (required)
+- `DEBUG=False`
+- `ALLOWED_HOSTS=.onrender.com`
+- Optional if using external database: `DATABASE_URL`
+
+## Notes
+
+- Static files are served in production with WhiteNoise.
+- If `DATABASE_URL` is not set, the app falls back to SQLite.
+- For production, use a managed PostgreSQL database on Render and set `DATABASE_URL`.

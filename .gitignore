@@ -21,6 +21,8 @@ env/
 
 # Django local database
 hello_world_project/db.sqlite3
+hello_world_project/staticfiles/
+hello_world_project/media/
 
 # OS files
 .DS_Store
