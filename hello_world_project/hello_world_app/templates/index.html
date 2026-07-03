@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{% static 'styles.css' %}?v=20260701a">
+    <link rel="stylesheet" href="{% static 'styles.css' %}?v=20260703a">
 </head>
 <body>
     <div class="page-bg"></div>
@@ -52,7 +52,7 @@
                 </div>
             </section>
 
-            <div class="sequence-strip" aria-label="RAG sequence overview">
+            <div class="sequence-strip" id="sequence-strip" aria-label="RAG sequence overview">
                 {% for step in walkthrough.steps %}
                 <div class="sequence-step{% if forloop.first %} is-active{% endif %}" data-step="{{ forloop.counter0 }}" role="button" tabindex="0" aria-label="Go to step {{ forloop.counter }}: {{ step.label }}">
                     <span class="sequence-number">{{ forloop.counter }}</span>
@@ -103,6 +103,8 @@
                         <textarea id="step-explainer-input" name="step-explainer" rows="4">{{ walkthrough.steps.0.explainer }}</textarea>
                     </div>
                     <div class="prompt-actions">
+                        <button id="add-step-btn" class="btn btn-secondary" type="button">Add Step</button>
+                        <button id="remove-step-btn" class="btn btn-secondary" type="button">Remove Step</button>
                         <button id="advance-step-btn" class="btn btn-secondary" type="button">Next Step</button>
                         <a class="btn btn-secondary" href="/">Load Example</a>
                         <a class="btn btn-primary" href="?blank=1">Start Blank</a>
@@ -113,6 +115,51 @@
                     <h3>What this step does</h3>
                     <p>{{ walkthrough.steps.0.explainer }}</p>
                 </div>
+
+                <section class="quiz-builder" id="quiz-builder" aria-label="Quiz builder">
+                    <h3>Quiz Builder</h3>
+                    <p class="quiz-intro">Choose the fields to quiz for each step, then click a card to reveal its answer.</p>
+
+                    <div class="quiz-mode-row" role="radiogroup" aria-label="Quiz mode">
+                        <label class="quiz-option">
+                            <input class="quiz-mode-radio" type="radio" name="quiz-mode" value="cards" checked>
+                            <span>Card quiz mode</span>
+                        </label>
+                        <label class="quiz-option">
+                            <input class="quiz-mode-radio" type="radio" name="quiz-mode" value="page">
+                            <span>Page reveal mode</span>
+                        </label>
+                    </div>
+
+                    <div class="quiz-controls">
+                        <label class="quiz-option">
+                            <input id="quiz-select-all" type="checkbox" checked>
+                            <span>Select all fields</span>
+                        </label>
+                        <label class="quiz-option">
+                            <input class="quiz-field-checkbox" data-field="card_text" type="checkbox" checked>
+                            <span>Sequence Card Copy</span>
+                        </label>
+                        <label class="quiz-option">
+                            <input class="quiz-field-checkbox" data-field="hero_summary" type="checkbox" checked>
+                            <span>Top Summary</span>
+                        </label>
+                        <label class="quiz-option">
+                            <input class="quiz-field-checkbox" data-field="hero_detail" type="checkbox" checked>
+                            <span>Detailed Explanation</span>
+                        </label>
+                        <label class="quiz-option">
+                            <input class="quiz-field-checkbox" data-field="explainer" type="checkbox" checked>
+                            <span>Step Explainer Text</span>
+                        </label>
+                    </div>
+
+                    <div class="quiz-actions">
+                        <button id="build-quiz-btn" class="btn btn-primary" type="button">Build Quiz</button>
+                    </div>
+
+                    <div class="quiz-board" id="quiz-board"></div>
+                </section>
             </div>
         </section>
     </main>
@@ -126,6 +173,6 @@
         </div>
     </footer>
     {{ walkthrough_config|json_script:"walkthrough-config" }}
-    <script src="{% static 'script.js' %}?v=20260701a"></script>
+    <script src="{% static 'script.js' %}?v=20260703a"></script>
 </body>
 </html>
