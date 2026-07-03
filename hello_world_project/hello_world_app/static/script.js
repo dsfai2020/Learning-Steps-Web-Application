@@ -140,7 +140,8 @@ function syncDiagram(stepIndex) {
   });
 }
 
-function syncActiveStep(stepIndex) {
+function syncActiveStep(stepIndex, options = {}) {
+  const { skipBuilderInputs = false } = options;
   currentStep = stepIndex;
   const step = walkthroughState.steps[stepIndex];
 
@@ -177,7 +178,9 @@ function syncActiveStep(stepIndex) {
     advanceStepButton.textContent = `Next Step: ${getStepName((stepIndex + 1) % totalSteps)}`;
   }
 
-  syncBuilderInputs(stepIndex);
+  if (!skipBuilderInputs) {
+    syncBuilderInputs(stepIndex);
+  }
   syncDiagram(stepIndex);
 }
 
@@ -197,34 +200,62 @@ function handleBuilderInput() {
   }
 
   if (brandInput) {
-    walkthroughState.brand = brandInput.value.trim() || 'Untitled lesson';
+    walkthroughState.brand = brandInput.value;
   }
 
   if (eyebrowInput) {
-    walkthroughState.eyebrow = eyebrowInput.value.trim() || 'Reusable lesson';
+    walkthroughState.eyebrow = eyebrowInput.value;
   }
 
   if (stepTitleInput) {
-    step.label = stepTitleInput.value.trim() || `Step ${currentStep + 1}`;
+    step.label = stepTitleInput.value;
   }
 
   if (stepCardTextInput) {
-    step.card_text = stepCardTextInput.value.trim() || 'Add a short sequence description for this step.';
+    step.card_text = stepCardTextInput.value;
   }
 
   if (stepSummaryInput) {
-    step.hero_summary = stepSummaryInput.value.trim() || 'Add a short summary for this step.';
+    step.hero_summary = stepSummaryInput.value;
   }
 
   if (stepDetailInput) {
-    step.hero_detail = stepDetailInput.value.trim() || 'Add a more detailed explanation for this step.';
+    step.hero_detail = stepDetailInput.value;
   }
 
   if (stepExplainerInput) {
-    step.explainer = stepExplainerInput.value.trim() || 'Add the supporting explainer text for this step.';
+    step.explainer = stepExplainerInput.value;
   }
 
-  syncActiveStep(currentStep);
+  if (!walkthroughState.brand.trim()) {
+    walkthroughState.brand = 'Untitled lesson';
+  }
+
+  if (!walkthroughState.eyebrow.trim()) {
+    walkthroughState.eyebrow = 'Reusable lesson';
+  }
+
+  if (!step.label.trim()) {
+    step.label = `Step ${currentStep + 1}`;
+  }
+
+  if (!step.card_text.trim()) {
+    step.card_text = 'Add a short sequence description for this step.';
+  }
+
+  if (!step.hero_summary.trim()) {
+    step.hero_summary = 'Add a short summary for this step.';
+  }
+
+  if (!step.hero_detail.trim()) {
+    step.hero_detail = 'Add a more detailed explanation for this step.';
+  }
+
+  if (!step.explainer.trim()) {
+    step.explainer = 'Add the supporting explainer text for this step.';
+  }
+
+  syncActiveStep(currentStep, { skipBuilderInputs: true });
 }
 
 function jumpToStep(stepIndex) {
