@@ -423,6 +423,25 @@ function extractStepIndexFromElement(element) {
   return Number.parseInt(value, 10);
 }
 
+function toggleActiveSequenceMask(stepIndex, sourceTarget) {
+  const selectedFields = getSelectedQuizFields();
+  if (!selectedFields.includes('card_text')) {
+    return false;
+  }
+
+  let maskedField = sourceTarget?.closest('[data-page-quiz-field="card_text"]') || null;
+  if (!maskedField) {
+    maskedField = document.querySelector(`.sequence-step[data-step="${stepIndex}"] [data-page-quiz-field="card_text"]`);
+  }
+
+  if (!maskedField) {
+    return false;
+  }
+
+  maskedField.classList.toggle('quiz-revealed');
+  return true;
+}
+
 function handleStepKeydown(event) {
   if (event.key !== 'Enter' && event.key !== ' ') {
     return;
@@ -435,9 +454,22 @@ function handleStepKeydown(event) {
 
   event.preventDefault();
   const stepIndex = extractStepIndexFromElement(target);
-  if (!Number.isNaN(stepIndex)) {
-    jumpToStep(stepIndex);
+  if (Number.isNaN(stepIndex)) {
+    return;
   }
+
+  if (
+    target.dataset.step !== undefined &&
+    stepIndex === currentStep &&
+    quizMode === 'page' &&
+    quizBuilt &&
+    toggleActiveSequenceMask(stepIndex, event.target)
+  ) {
+    event.stopPropagation();
+    return;
+  }
+
+  jumpToStep(stepIndex);
 }
 
 function handleStepClick(event) {
@@ -447,9 +479,22 @@ function handleStepClick(event) {
   }
 
   const stepIndex = extractStepIndexFromElement(target);
-  if (!Number.isNaN(stepIndex)) {
-    jumpToStep(stepIndex);
+  if (Number.isNaN(stepIndex)) {
+    return;
   }
+
+  if (
+    target.dataset.step !== undefined &&
+    stepIndex === currentStep &&
+    quizMode === 'page' &&
+    quizBuilt &&
+    toggleActiveSequenceMask(stepIndex, event.target)
+  ) {
+    event.stopPropagation();
+    return;
+  }
+
+  jumpToStep(stepIndex);
 }
 
 function handleAddStep() {
